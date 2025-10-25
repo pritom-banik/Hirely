@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $inserted = mysqli_query($connection, $stmt);
         if($inserted){
-            header("Location: login.php");
+            header("Location: index.php");
         } else {
             $message = "<p class='text-red-500 text-center'>❌ Error: " . htmlspecialchars($stmt->error) . "</p>";
         }
