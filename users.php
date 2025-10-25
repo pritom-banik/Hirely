@@ -148,6 +148,7 @@ if (isset($_POST['logout'])) {
             <!-- Profile Update Form -->
             <div class="mb-8">
                 <h3 class="text-lg font-medium text-gray-800 mb-3">Update Profile</h3>
+                <h5 class="bg-green-400 border p-2">SELECT * FROM users WHERE u_id=?</h5>
                 <form action="users.php" method="POST" class="space-y-4">
                     <div>
                         <label for="name" class="block text-gray-700 mb-1">Name:</label>
@@ -159,6 +160,7 @@ if (isset($_POST['logout'])) {
                         <input type="text" id="summery" name="summery" value="<?php echo htmlspecialchars($summery); ?>"
                                class="w-full px-4 py-2 bg-green-100 border border-green-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a16207]">
                     </div>
+                    <h5 class="bg-green-400 border p-2">UPDATE users SET name=?, summary=? WHERE u_id=?</h5>
                     <button type="submit" name="update_profile" 
                             class="w-full bg-[#a16207] text-white py-2 rounded-lg hover:bg-gray-700 transition duration-200">
                         Update Profile
@@ -169,6 +171,8 @@ if (isset($_POST['logout'])) {
             <!-- Skills Section -->
             <div class="mb-8">
                 <h3 class="text-lg font-medium text-gray-800 mb-3">Skills</h3>
+                <h5 class="bg-green-400 border p-2">SELECT * FROM skill WHERE u_id = ?</h5>
+                <h5 class="bg-green-400 border p-2">DELETE FROM skill WHERE s_id = ?</h5>
                 <table class="w-full table-auto border-collapse mb-4">
                     <thead>
                         <tr class="bg-gray-100">
@@ -200,7 +204,7 @@ if (isset($_POST['logout'])) {
                         <?php } ?>
                     </tbody>
                 </table>
-
+                            <h5 class="bg-green-400 border p-2">INSERT INTO skill(u_id,name) VALUES(?,?)</h5>
                 <form action="users.php" method="POST" class="flex gap-2">
                     <input type="text" id="skills" name="skills" placeholder="Enter new skill"
                            class="flex-1 px-4 py-2 bg-green-100 border border-green-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a16207]">
@@ -214,6 +218,7 @@ if (isset($_POST['logout'])) {
             <!-- Experience Section -->
             <div class="mb-8">
                 <h3 class="text-lg font-medium text-gray-800 mb-3">Experience</h3>
+                <h5 class="bg-green-400 border p-2">SELECT experience.e_id as e_id, company.name as name, experience.role as role FROM experience JOIN company ON experience.c_id = company.c_id WHERE experience.u_id = ?</h5>
                 <table class="w-full table-auto border-collapse mb-4">
                     <thead>
                         <tr class="bg-gray-100">
@@ -279,6 +284,7 @@ if (isset($_POST['logout'])) {
             <!-- Available Jobs Section -->
             <div class="mb-8">
                 <h3 class="text-lg font-medium text-gray-800 mb-3">Available Jobs</h3>
+                <h5 class="bg-green-400 border p-2">SELECT j.j_id as j_id, j.title as title, j.description as description, j.deadline as deadline, c.name as c_name, c.c_id as c_id, c.location as location FROM job_circular j JOIN company c where j.c_id=c.c_id</h5>
                 <table class="w-full table-auto border-collapse">
                     <thead>
                         <tr class="bg-gray-100">

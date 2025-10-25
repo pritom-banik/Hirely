@@ -150,6 +150,7 @@ if (isset($_POST['logout'])) {
             ?>
             <div class="mb-6">
                 <h3 class="text-lg font-medium text-gray-800 mb-2">Company Info</h3>
+                <h5 class="bg-green-400 border p-2">SELECT * FROM company_admin WHERE admin_id = ?</h5>
                 <table class="w-full table-auto border-collapse">
                     <thead>
                         <tr class="bg-gray-100">
@@ -167,24 +168,27 @@ if (isset($_POST['logout'])) {
                     </tbody>
                 </table>
             </div>
+            
 
             <!-- Company create/edit form -->
             <div class="mb-6">
                 <h3 class="text-lg font-medium text-gray-800 mb-3"><?php echo ($c_id === null) ? 'Add Company' : 'Edit Company'; ?></h3>
+                <h5 class="bg-green-400 border p-2">INSERT INTO company (name, description, location) VALUES (?, ?, ?)</h5>
+                <h5 class="bg-green-400 border p-2">UPDATE company SET name = ?, description = ?, location = ? WHERE c_id = ?</h5>
                 <form action="admin.php" method="POST" class="space-y-4">
                     <div>
                         <label for="name" class="block text-gray-700 mb-1">Company Name:</label>
-                        <input type="text" id="name" name="name" required
+                        <input type="text" id="name" name="name" value="<?php echo $c_name?>" required
                                class="w-full px-4 py-2 bg-green-100 border border-green-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a16207]" />
                     </div>
                     <div>
                         <label for="description" class="block text-gray-700 mb-1">Description</label>
-                        <input type="text" id="description" name="description" required
+                        <input type="text" id="description" name="description" value="<?php echo $c_description?>" required
                                class="w-full px-4 py-2 bg-green-100 border border-green-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a16207]" />
                     </div>
                     <div>
                         <label for="location" class="block text-gray-700 mb-1">Location</label>
-                        <input type="text" id="location" name="location" required
+                        <input type="text" id="location" name="location" value="<?php echo $c_location?>" required
                                class="w-full px-4 py-2 bg-green-100 border border-green-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a16207]" />
                     </div>
                     <div>
@@ -195,6 +199,7 @@ if (isset($_POST['logout'])) {
                     </div>
                 </form>
             </div>
+            
 
             <!-- Job circulars list -->
             <div class="mb-6">
@@ -232,6 +237,7 @@ if (isset($_POST['logout'])) {
             <!-- Job circular post form -->
             <div class="mb-6">
                 <h3 class="text-lg font-medium text-gray-800 mb-3">Post Job Circular</h3>
+                <h5 class="bg-green-400 border p-2">INSERT INTO job_circular (c_id, title, description, deadline) VALUES (?, ?, ?, ?)</h5>
                 <form action="admin.php" method="POST" class="space-y-4">
                     <div>
                         <label for="title" class="block text-gray-700 mb-1">Circular Title:</label>
@@ -256,6 +262,10 @@ if (isset($_POST['logout'])) {
                     </div>
                 </form>
             </div>
+
+            <table>
+
+            </table>
 
             <!-- Logout -->
             <div class="mt-4">
