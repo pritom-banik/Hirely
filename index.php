@@ -12,29 +12,38 @@ include 'db_connection.php';
 ?>
 
 
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-    <div class="bg-white p-8 rounded-lg shadow-md w-96">
-        <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">Welcome to Hirely</h1>
-            <p class="text-gray-600">Your go-to platform for hiring top talent.</p>
-        </div>
+<body class="min-h-screen flex flex-col items-center justify-center" style="background-image: url('images/bg.jpg'); background-size: cover; background-position: center;background-attachment: fixed;">
+    <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-white mb-2">Welcome to Hirely</h1>
+            <p class="text-white">Your go-to platform for hiring top talent.</p>
+        </div>    
+<div class="main-form bg-[#fef3c7]/90 p-8 rounded-lg shadow-md w-96">
         
         <h2 class="text-2xl font-semibold mb-6 text-gray-800">Login</h2>
-        <form action="/login" method="post" class="space-y-4">
+        <form action="index.php" method="post" class="space-y-4">
             <div>
                 <label for="email" class="block text-gray-700 mb-2">Email:</label>
                 <input type="email" id="email" name="email" required 
-                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                    class="w-full px-4 py-2 bg-green-100 border border-green-800 rounded-lg focus:outline-none focus:border-blue-500">
+            </div>
+
+            <div>
+                <label for="type" class="block text-gray-700 mb-2">Who you are:</label>
+                <select id="type" name="type" required 
+                    class="w-full px-4 py-2 bg-green-100 bg-green-100 border border-green-800 rounded-lg focus:outline-none focus:border-blue-500 bg-white">
+                    <option value="company_admin">Company Admin</option>
+                    <option value="users">Job Seeker</option>
+                </select>
             </div>
             
             <div>
                 <label for="password" class="block text-gray-700 mb-2">Password:</label>
                 <input type="password" id="password" name="password" required 
-                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                    class="w-full px-4 py-2 bg-green-100 border border-green-800 rounded-lg focus:outline-none focus:border-blue-500">
             </div>
             
             <button type="submit" 
-                class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200">
+                class="w-full bg-[#a16207] text-white py-2 rounded-lg hover:bg-gray-700 transition duration-200">
                 Login
             </button>
         </form>
@@ -46,3 +55,22 @@ include 'db_connection.php';
     </div>
 </body>
 </html>
+
+<?php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+$email=$_POST['email'];
+$password=$_POST['password'];
+$type=$_POST['type'];
+$str="SELECT * FROM $type WHERE email='$email' and password='$password'";
+$result=mysqli_query($connection,$str);
+if (mysqli_num_rows($result)>0) {
+    if ($type=="company_admin") {
+        header("Location: admin.php");
+    } else {
+        header("Location: user.php");
+    }
+} else {
+    echo "<script>alert('Invalid email or password');</script>";
+}
+}
+?>
