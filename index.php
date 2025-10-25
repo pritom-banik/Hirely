@@ -72,12 +72,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($type == "company_admin") {
             $_SESSION['admin_id'] = $row['admin_id'];
             $_SESSION['user_type'] = "admin";
-            //$_SESSION['name'] = $row['name'];
 
             header("Location: admin.php");
             exit;
         } else {
-            header("Location: user.php");
+            $_SESSION['user_id'] = $row['u_id'];
+            $_SESSION['user_type'] = "users";
+
+            header("Location: users.php");
+            exit;
         }
     } else {
         echo "<script>alert('Invalid email or password');</script>";
