@@ -294,13 +294,13 @@ if (isset($_POST['logout'])) {
                     <span class="font-bold">LEFT JOIN</span> experience e ON u.u_id = e.u_id
                     <span class="font-bold">LEFT JOIN</span> company c2 ON e.c_id = c2.c_id
                     WHERE u.u_id IN <span class="font-medium"> (
-                    SELECT DISTINCT a.u_id
-                    FROM application a
-                    INNER JOIN job_circular j ON a.j_id = j.j_id
-                    WHERE j.c_id = ?
-                    )
+                        SELECT DISTINCT a.u_id
+                        FROM application a
+                        INNER JOIN job_circular j ON a.j_id = j.j_id
+                        WHERE j.c_id = ?
+                        );
                     </span>
-                    GROUP BY u.u_id, u.name, u.summary;
+                    <!-- GROUP BY u.u_id, u.name, u.summary; -->
                 </h5>
 
                 <table class="w-full table-auto border-collapse">
@@ -358,82 +358,116 @@ if (isset($_POST['logout'])) {
                 </table>
             </div>
 
-            <div class="overflow-x-auto mt-6">
-    <?php
-    // Fetch all applicants grouped by job circular (for this company)
-    $application = $connection->prepare("
-        SELECT 
-            j.j_id,
-            j.title AS job_title,
-            u.u_id,
-            u.email AS email,
-            u.name AS name,
-            u.summary AS summery,
-            GROUP_CONCAT(DISTINCT s.name) AS skills,
-            GROUP_CONCAT(DISTINCT c2.name) AS p_company
-        FROM job_circular j
-        JOIN application a ON j.j_id = a.j_id
-        JOIN users u ON a.u_id = u.u_id
-        LEFT JOIN skill s ON u.u_id = s.u_id
-        LEFT JOIN experience e ON u.u_id = e.u_id
-        LEFT JOIN company c2 ON e.c_id = c2.c_id
-        WHERE j.c_id = ?
-        GROUP BY j.j_id, u.u_id, j.title, u.name, u.summary, u.email
-        ORDER BY j.j_id;
-    ");
 
-    $application->bind_param('i', $c_id);
-    $application->execute();
-    $result_a = $application->get_result();
 
-    $current_job = null;
 
-    if ($result_a->num_rows > 0) {
-        while ($a_row = $result_a->fetch_assoc()) {
-            // When a new job circular starts, print its header and table head
-            if ($current_job !== $a_row['j_id']) {
-                // Close previous table if not the first one
-                if ($current_job !== null) {
-                    echo "</tbody></table><br>";
-                }
 
-                // New job circular title section
-                echo "
-                <h2 class='text-xl font-semibold text-gray-800 mb-2 mt-4'>
-                    Job Circular: " . htmlspecialchars($a_row['job_title']) . "
-                </h2>
-                <table class='w-full table-auto border-collapse mb-4'>
+
+
+            <div class="mb-6">
+                <h3 class="text-lg font-medium text-gray-800 mb-3">User Grouped by Skills</h3>
+                <h5 class="bg-green-400 border p-2">
+                    SELECT s.name AS skill_name,
+                    COUNT(DISTINCT s.u_id) AS applicant_count,
+                    GROUP_CONCAT(DISTINCT u.name SEPARATOR ', ') AS applicants
+                    FROM skill s
+                    JOIN users u ON s.u_id = u.u_id
+                    GROUP BY s.name
+                    ORDER BY applicant_count DESC, s.name</h5>
+                <h5 class="bg-green-400 border p-2">
+                    SELECT u.u_id, u.name, u.email, u.summary,
+                    GROUP_CONCAT(DISTINCT s2.name SEPARATOR ', ') AS all_skills
+                    FROM users u
+                    LEFT JOIN skill s2 ON u.u_id = s2.u_id
+                    WHERE EXISTS (
+                    SELECT 1 FROM skill s3 WHERE s3.u_id = u.u_id AND s3.name = ?
+                    )
+                    GROUP BY u.u_id
+                    ORDER BY u.name
+                </h5>
+                <table class="w-full table-auto border-collapse">
                     <thead>
-                        <tr class='bg-gray-100'>
-                            <th class='px-4 py-2 text-left'>Applicant Name</th>
-                            <th class='px-4 py-2 text-left'>Skills</th>
-                            <th class='px-4 py-2 text-left'>Experience</th>
-                            <th class='px-4 py-2 text-left'>Summary</th>
-                            <th class='px-4 py-2 text-left'>Email</th>
+                        <tr class="bg-gray-100">
+                            <th class="px-4 py-2 text-left">Skill</th>
+                            <th class="px-4 py-2 text-left">Applicants</th>
+                            <th class="px-4 py-2 text-left">Applicant Details</th>
                         </tr>
                     </thead>
                     <tbody>
-                ";
-                $current_job = $a_row['j_id'];
-            }
+                        <?php
+                        $skills_query = "
+                SELECT 
+                    s.name AS skill_name,
+                    COUNT(DISTINCT s.u_id) AS applicant_count,
+                    GROUP_CONCAT(DISTINCT u.name SEPARATOR ', ') AS applicants
+                FROM skill s
+                JOIN users u ON s.u_id = u.u_id
+                GROUP BY s.name
+                ORDER BY applicant_count DESC, s.name
+            ";
+                        $skills_result = $connection->query($skills_query);
 
-            // Applicant rows
-            echo "<tr class='odd:bg-white even:bg-gray-50'>";
-            echo "<td class='px-4 py-2'>" . htmlspecialchars($a_row['name']) . "</td>";
-            echo "<td class='px-4 py-2'>" . htmlspecialchars($a_row['skills'] ?? '—') . "</td>";
-            echo "<td class='px-4 py-2'>" . htmlspecialchars($a_row['p_company'] ?? '—') . "</td>";
-            echo "<td class='px-4 py-2'>" . htmlspecialchars($a_row['summery'] ?? '—') . "</td>";
-            echo "<td class='px-4 py-2'>" . htmlspecialchars($a_row['email']) . "</td>";
-            echo "</tr>";
-        }
+                        if ($skills_result && $skills_result->num_rows > 0) {
+                            // prepared statement to fetch user details for a given skill
+                            $user_stmt = $connection->prepare("
+                    SELECT u.u_id, u.name, u.email, u.summary,
+                           GROUP_CONCAT(DISTINCT s2.name SEPARATOR ', ') AS all_skills
+                    FROM users u
+                    LEFT JOIN skill s2 ON u.u_id = s2.u_id
+                    WHERE EXISTS (
+                        SELECT 1 FROM skill s3 WHERE s3.u_id = u.u_id AND s3.name = ?
+                    )
+                    GROUP BY u.u_id
+                    ORDER BY u.name
+                ");
 
-        // Close last table
-        echo "</tbody></table>";
-    } else {
-        echo "<p class='text-gray-500 text-center'>No applications found for any job circular.</p>";
-    }
-    ?>
-</div>
+                            while ($skill_row = $skills_result->fetch_assoc()) {
+                                $skill_name = $skill_row['skill_name'];
+                                echo "<tr class='odd:bg-white even:bg-gray-50'>";
+                                echo "<td class='px-4 py-2'>" . htmlspecialchars($skill_name) . "</td>";
+                                echo "<td class='px-4 py-2'>" . intval($skill_row['applicant_count']) . "</td>";
+
+                                $details_html = "";
+                                if ($user_stmt) {
+                                    $user_stmt->bind_param("s", $skill_name);
+                                    $user_stmt->execute();
+                                    $user_res = $user_stmt->get_result();
+                                    if ($user_res && $user_res->num_rows > 0) {
+                                        $details_html .= "<div class='space-y-2'>";
+                                        while ($u = $user_res->fetch_assoc()) {
+                                            $details_html .= "<div class='p-2 bg-white rounded border'>";
+                                            $details_html .= "<div class='font-semibold text-gray-800'>" . htmlspecialchars($u['name']) . " <span class='text-sm text-gray-500'>(" . htmlspecialchars($u['email']) . ")</span></div>";
+                                            $details_html .= "<div class='text-sm text-gray-600'>Summary: " . htmlspecialchars($u['summary']) . "</div>";
+                                            $details_html .= "<div class='text-sm text-gray-600'>Skills: " . htmlspecialchars($u['all_skills']) . "</div>";
+                                            $details_html .= "</div>";
+                                        }
+                                        $details_html .= "</div>";
+                                    } else {
+                                        $details_html = "<div class='text-sm text-gray-500'>No users found</div>";
+                                    }
+                                    $user_res->free_result();
+                                } else {
+                                    $details_html = "<div class='text-sm text-gray-500'>Query error</div>";
+                                }
+
+                                echo "<td class='px-4 py-2'>" . $details_html . "</td>";
+                                echo "</tr>";
+                            }
+
+                            if ($user_stmt)
+                                $user_stmt->close();
+                        } else {
+                            echo "<tr><td colspan='3' class='px-4 py-2 text-center text-gray-500'>No skills found</td></tr>";
+                        }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
+
+
+
+
+
 
 
 
