@@ -25,7 +25,6 @@ if (mysqli_num_rows($result) > 0) {
 
 
 <?php
-// Keep all backend logic unchanged
 if (isset($_POST['create_company'])) {
     $name = $_POST['name'];
     $description = $_POST['description'];
@@ -38,12 +37,12 @@ if (isset($_POST['create_company'])) {
         $stmt->bind_param("sss", $name, $description, $location);
 
         if ($stmt->execute()) {
-            // Get the new ==== company ID
+            
             $new_c_id = $stmt->insert_id;
 
             echo "Company added successfully.";
 
-            // Update company_admin table to link this admin to the new company
+            // Update company
             $sql_admin = "UPDATE company_admin SET c_id = ? WHERE admin_id = ?";
             $stmt_admin = $connection->prepare($sql_admin);
             $stmt_admin->bind_param("ii", $new_c_id, $admin_id);
@@ -128,7 +127,6 @@ if (isset($_POST['logout'])) {
         </div>
 
         <div class="mx-auto bg-[#fef3c7]/90 p-8 rounded-lg shadow-md">
-            <!-- Admin header -->
             <div class="mb-6">
                 <h2 class="text-2xl font-semibold text-gray-800">Hello,
                     <?php echo htmlspecialchars($name ?? 'Admin'); ?>
@@ -136,7 +134,6 @@ if (isset($_POST['logout'])) {
                 <p class="text-sm text-gray-600">Company ID: <?php echo htmlspecialchars($c_id ?? 'Not linked'); ?></p>
             </div>
 
-            <!-- Company info table -->
             <?php
             //showing company info
             $c_name = $c_description = $c_location = 'Not found any';
@@ -174,7 +171,7 @@ if (isset($_POST['logout'])) {
             </div>
 
 
-            <!-- Company create/edit form -->
+            <!-- create/edit form for company -->
             <div class="mb-6">
                 <h3 class="text-lg font-medium text-gray-800 mb-3">
                     <?php echo ($c_id === null) ? 'Add Company' : 'Edit Company'; ?>
@@ -369,7 +366,6 @@ if (isset($_POST['logout'])) {
                 <h5 class="bg-green-400 border p-2">
                     SELECT s.name AS skill_name,
                     COUNT(DISTINCT s.u_id) AS applicant_count,
-                    GROUP_CONCAT(DISTINCT u.name SEPARATOR ', ') AS applicants
                     FROM skill s
                     JOIN users u ON s.u_id = u.u_id
                     GROUP BY s.name
@@ -408,7 +404,6 @@ if (isset($_POST['logout'])) {
                         $skills_result = $connection->query($skills_query);
 
                         if ($skills_result && $skills_result->num_rows > 0) {
-                            // prepared statement to fetch user details for a given skill
                             $user_stmt = $connection->prepare("
                     SELECT u.u_id, u.name, u.email, u.summary,
                            GROUP_CONCAT(DISTINCT s2.name SEPARATOR ', ') AS all_skills
@@ -463,11 +458,6 @@ if (isset($_POST['logout'])) {
                     </tbody>
                 </table>
             </div>
-
-
-
-
-
 
 
 

@@ -407,7 +407,7 @@ if (isset($_POST['logout'])) {
                         $params[] = "%" . $_POST['job_title'] . "%";
                         $types .= "s";
                     }
-
+//here is the job search query to make it dynamic 
                     $sql = "SELECT j.j_id, j.title, j.description, j.deadline, c.name as c_name, c.location 
                 FROM job_circular j 
                 INNER JOIN company c ON j.c_id = c.c_id";
@@ -432,7 +432,7 @@ if (isset($_POST['logout'])) {
                                     <th class="px-4 py-2 text-left">Company</th>
                                     <th class="px-4 py-2 text-left">Location</th>
                                     <th class="px-4 py-2 text-left">Deadline</th>
-                                    <th class="px-4 py-2 text-right">Action</th>
+                                    <!-- //<th class="px-4 py-2 text-right">Action</th> -->
                                 </tr>
                             </thead>
                             <tbody>
@@ -445,11 +445,11 @@ if (isset($_POST['logout'])) {
                                         echo "<td class='px-4 py-2'>" . htmlspecialchars($job['location']) . "</td>";
                                         echo "<td class='px-4 py-2'>" . htmlspecialchars($job['deadline']) . "</td>";
                                         echo "<td class='px-4 py-2 text-right'>";
-                                        echo "<form action='users.php' method='POST' class='inline'>";
-                                        echo "<input type='hidden' name='j_id' value='" . $job['j_id'] . "'>";
-                                        echo "<button type='submit' name='apply' 
-                                  class='bg-[#a16207] text-white px-4 py-1 rounded hover:bg-gray-700 transition duration-200'>
-                                  Apply Now</button>";
+                                //         echo "<form action='users.php' method='POST' class='inline'>";
+                                //         echo "<input type='hidden' name='j_id' value='" . $job['j_id'] . "'>";
+                                //         echo "<button type='submit' name='apply' 
+                                //   class='bg-[#a16207] text-white px-4 py-1 rounded hover:bg-gray-700 transition duration-200'>
+                                //   Apply Now</button>";
                                         echo "</form>";
                                         echo "</td>";
                                         echo "</tr>";
@@ -466,7 +466,7 @@ if (isset($_POST['logout'])) {
                                         found)</span>
                                 </h4>
                                 <h5 class="bg-green-400 border p-2 mb-4">
-                                    SELECT COUNT(*) as total FROM (<?php echo $sql; ?>) as job_count
+                                     Number of results showed by $search_results->num_rows function
                                 </h5>
 
                                 <table class="w-full table-auto border-collapse">
